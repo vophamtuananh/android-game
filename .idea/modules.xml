@@ -3,6 +3,8 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/MyOpenGL.iml" filepath="$PROJECT_DIR$/MyOpenGL.iml" />
+      <module fileurl="file://$PROJECT_DIR$/android-game.iml" filepath="$PROJECT_DIR$/android-game.iml" />
+      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
     </modules>
   </component>

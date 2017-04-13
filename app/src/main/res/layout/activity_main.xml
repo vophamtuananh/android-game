@@ -6,8 +6,14 @@
     android:layout_height="match_parent"
     tools:context="com.vophamtuananh.myopengl.MainActivity">
 
-    <com.vophamtuananh.myopengl.GameView
-        android:id="@+id/game_View"
+    <com.vophamtuananh.myopengl.BackgroundView
+        android:id="@+id/background_View"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
+
+    <com.vophamtuananh.myopengl.ForegeoundView
+        android:id="@+id/foreground_View"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
 </RelativeLayout>

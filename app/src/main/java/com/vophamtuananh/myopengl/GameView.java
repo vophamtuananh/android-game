@@ -20,11 +20,9 @@ import java.util.Random;
 
 public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
-    GameThread gameThread;
-    SurfaceHolder surfaceHolder;
-
-    LancherSprite lancherSprite;
-    LancherSprite lancherSprite2;
+    protected GameThread gameThread;
+    protected SurfaceHolder surfaceHolder;
+    protected long expectedDelayTime;
 
     public GameView(Context context) {
         super(context);
@@ -41,101 +39,53 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         init();
     }
 
-    private void init() {
-        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher);
-        lancherSprite = new LancherSprite(bitmap, 0, 0);
-        lancherSprite2 = new LancherSprite(bitmap, 300, 300);
+    protected void init() {
+        surfaceHolder = getHolder();
+        getHolder().addCallback(this);
     }
 
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
-
     }
 
     @Override
-    public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-
-    }
+    public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {}
 
     @Override
     public void surfaceDestroyed(SurfaceHolder holder) {
-
-    }
-
-    @Override
-    public boolean onTouchEvent(MotionEvent event) {
-        int x = (int) event.getX();
-        int y = (int) event.getY();
-
-        int action = event.getAction();
-
-        switch(action){
-            case MotionEvent.ACTION_DOWN:
-                lancherSprite.setX(x);
-                lancherSprite.setY(y);
-                break;
-            case MotionEvent.ACTION_MOVE:
-                lancherSprite.setX(x);
-                lancherSprite.setY(y);
-                break;
-            case MotionEvent.ACTION_UP:
-                break;
-            case MotionEvent.ACTION_CANCEL:
-                break;
-            case MotionEvent.ACTION_OUTSIDE:
-                break;
-            default:
-        }
-        return true;
     }
 
     @Override
     public void draw(Canvas canvas) {
         canvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
-        lancherSprite.draw(canvas);
-        lancherSprite2.draw(canvas);
     }
 
     public void updateStates(){
-        if (lancherSprite.isCollision(lancherSprite2)) {
-            Log.e("Collision", "va cham");
-        }
+
     }
 
-    public void updateView(){
-        Canvas canvas = null;
-        try{
-            canvas = surfaceHolder.lockCanvas();
-            synchronized (surfaceHolder) {
-                updateStates();
-                draw(canvas);
-            }
-        }finally{
-            if(canvas != null){
-                surfaceHolder.unlockCanvasAndPost(canvas);
-            }
-        }
+    public void updateView(Canvas canvas){
+        draw(canvas);
+        updateStates();
     }
 
     public void onResume(){
-        surfaceHolder = getHolder();
-        getHolder().addCallback(this);
-        gameThread = new GameThread(this);
+        gameThread = new GameThread(this, expectedDelayTime);
         gameThread.setRunning(true);
         gameThread.start();
-
     }
 
     public void onPause(){
-        boolean retry = true;
-        gameThread.setRunning(false);
+        boolean retry = gameThread != null;
         while(retry){
             try {
+                gameThread.setRunning(false);
                 gameThread.join();
                 retry = false;
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         }
+        gameThread = null;
     }
 }

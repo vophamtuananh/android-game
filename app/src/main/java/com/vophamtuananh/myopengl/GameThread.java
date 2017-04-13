@@ -11,59 +11,66 @@ public class GameThread extends Thread {
 
     private static int FPS = 30;
 
-    long tickFPS = 1000 / FPS;
-
-    int realFPS = 0;
-
-    long contms=0;
+    long expectedDelayTime;
 
     volatile boolean running = false;
 
     GameView gameView;
-    long sleepTime = 500;
 
-    public GameThread(GameView view) {
+    public GameThread(GameView view, long expectedDelayTime) {
         super();
         gameView = view;
+        this.expectedDelayTime = expectedDelayTime;
     }
 
     public void setRunning(boolean running) {
         this.running = running;
     }
 
+    private void sleeps(long time) throws InterruptedException {
+        Thread.sleep(time);
+    }
+
     @Override
     public void run() {
+
+        long ticksPS = 1000 / FPS;
         long startTime;
-        //long sleepTime;
-        long lasttimecheck = System.currentTimeMillis();
+        long sleepTime;
+
         while (running) {
-            /*long time =  System.currentTimeMillis();
-            if(contms > 1000) {
-                contms = time - lasttimecheck;
-                realFPS=1;
-            } else {
-                realFPS++;
-                contms += time - lasttimecheck;
-            }
-            lasttimecheck = time;
-            startTime = time;*/
 
-            try {
-                sleep(sleepTime);
-                gameView.updateView();
-            } catch (InterruptedException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+            if (!gameView.getHolder().getSurface().isValid()) {
+                continue;
             }
 
-            /*sleepTime = tickFPS - (System.currentTimeMillis() - startTime);
+            Canvas c = null;
+            startTime = System.currentTimeMillis();
+
             try {
-                if (sleepTime > 10)
-                    sleep(sleepTime);
-                else {
-                    sleep(10);
+                c = gameView.getHolder().lockCanvas();
+                synchronized (gameView.getHolder()) {
+                    gameView.updateView(c);
                 }
-            } catch (Exception e) {}*/
+            } catch (NullPointerException ex){}
+            finally {
+                if (c != null) {
+                    gameView.getHolder().unlockCanvasAndPost(c);
+                }
+            }
+
+            sleepTime = ticksPS - (System.currentTimeMillis() - startTime);
+
+            try {
+                if (sleepTime > 0)
+                    sleeps(sleepTime + expectedDelayTime);
+                else
+                    sleep(10 + expectedDelayTime);
+            } catch (Exception e) {
+                break;
+            }
         }
+
+        gameView = null;
     }
 }
